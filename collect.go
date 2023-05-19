@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/exp/slog"
 	"net/http"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/exp/slog"
 )
 
 func startCollector(ctx context.Context, cfg Config) {
@@ -28,7 +29,7 @@ func startCollector(ctx context.Context, cfg Config) {
 			logger := slog.With(
 				slog.String("name", config.Name),
 				slog.String("address", config.Address),
-				slog.Bool("secure", config.Secure),
+				slog.Bool("insecure", config.Insecure),
 				slog.String("username", config.Username),
 				slog.String("password", config.Password),
 				slog.Duration("interval", config.Interval),
@@ -62,10 +63,12 @@ func collect(ctx context.Context, logger *slog.Logger, cfg PlugConfig) {
 			}
 			temperature.With(labels).Set(status.Temperature)
 			uptime.With(labels).Set(float64(status.Uptime))
+			hasUpdate.With(labels).Set(boolToFloat64(status.Update.HasUpdate))
 
 			for i, meter := range status.Meters {
 				labels["meter"] = strconv.Itoa(i)
 				power.With(labels).Set(meter.Power)
+				powerValid.With(labels).Set(boolToFloat64(meter.IsValid))
 				overpower.With(labels).Set(meter.Overpower)
 				totalPower.With(labels).Add(float64(meter.Total))
 			}
@@ -75,9 +78,9 @@ func collect(ctx context.Context, logger *slog.Logger, cfg PlugConfig) {
 }
 
 func getPlugStatus(ctx context.Context, cfg PlugConfig) (*PlugStatus, error) {
-	scheme := "http"
-	if cfg.Secure {
-		scheme = "https"
+	scheme := "https"
+	if cfg.Insecure {
+		scheme = "http"
 	}
 	ctx, cancel := context.WithTimeout(ctx, cfg.Timeout)
 	defer cancel()
@@ -101,4 +104,11 @@ func getPlugStatus(ctx context.Context, cfg PlugConfig) (*PlugStatus, error) {
 	}
 
 	return &status, nil
+}
+
+func boolToFloat64(b bool) float64 {
+	if b {
+		return 1.0
+	}
+	return 0.0
 }

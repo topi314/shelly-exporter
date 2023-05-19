@@ -3,65 +3,69 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"golang.org/x/exp/slog"
-	"gopkg.in/yaml.v2"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"golang.org/x/exp/slog"
+	"gopkg.in/yaml.v2"
 )
 
 var (
 	power = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_power",
-		Help: "Current power drawn in watts",
+		Help: "Current real AC power being drawn, in Watts",
+	}, []string{"serial", "name", "meter"})
+
+	powerValid = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "shellyplug_power_valid",
+		Help: "Whether power metering self-checks OK",
 	}, []string{"serial", "name", "meter"})
 
 	overpower = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_overpower",
-		Help: "Overpower drawn in watts/minute",
+		Help: "Value in Watts, on which an overpower condition is detected",
 	}, []string{"serial", "name", "meter"})
 
 	totalPower = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "shellyplug_total_power",
-		Help: "Total power drawn in watts",
+		Help: "Total energy consumed by the attached electrical appliance in Watt-minute",
 	}, []string{"serial", "name", "meter"})
 
 	temperature = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_temperature",
-		Help: "Temperature in degrees celsius",
+		Help: "PlugS only internal device temperature in °C",
 	}, []string{"serial", "name"})
 
 	uptime = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_uptime",
-		Help: "Uptime in seconds",
+		Help: "Seconds elapsed since boot",
+	}, []string{"serial", "name"})
+
+	hasUpdate = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "shellyplug_has_update",
+		Help: "Whether an update is available",
 	}, []string{"serial", "name"})
 )
 
-var levels = map[string]slog.Level{
-	"debug": slog.LevelDebug,
-	"info":  slog.LevelInfo,
-	"warn":  slog.LevelWarn,
-	"error": slog.LevelError,
-}
-
 func main() {
 	cfgPath := flag.String("config", "shelly.yml", "Path to config file")
-	debug := flag.Bool("debug", false, "debug mode")
-	logType := flag.String("log", "json", "log format, one of: json, text")
-	logLevel := flag.String("log-level", "info", "log level, one of: debug, info, warn, error")
 	flag.Parse()
-
-	setupLogger(*debug, *logLevel, *logType)
 
 	cfg := Config{
 		Global: GlobalConfig{
-			ScrapeInterval: 30 * time.Second,
-			ScrapeTimeout:  5 * time.Second,
+			ScrapeInterval: 1 * time.Minute,
+			ScrapeTimeout:  10 * time.Second,
+		},
+		Log: LogConfig{
+			Level:     slog.LevelInfo,
+			Type:      "json",
+			AddSource: false,
 		},
 		Server: ServerConfig{
 			ListenAddr: ":2112",
@@ -78,6 +82,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	setupLogger(cfg.Log)
 	slog.Info("Starting ShellyPlug Exporter", slog.Any("config", cfg))
 
 	mux := http.NewServeMux()
@@ -103,13 +108,13 @@ func main() {
 	<-s
 }
 
-func setupLogger(debug bool, level string, logType string) {
+func setupLogger(cfg LogConfig) {
 	opts := &slog.HandlerOptions{
-		AddSource: debug,
-		Level:     levels[level],
+		AddSource: cfg.AddSource,
+		Level:     cfg.Level,
 	}
 	var handler slog.Handler
-	if logType == "json" {
+	if cfg.Type == "json" {
 		handler = slog.NewJSONHandler(os.Stdout, opts)
 	} else {
 		handler = slog.NewTextHandler(os.Stdout, opts)
