@@ -38,9 +38,29 @@ services:
 The exporter is configured via a YAML file. The default path is `/etc/shelly-exporter/config.yml` but you can change it
 with the `--config` flag.
 
-https://github.com/TopiSenpai/shelly-exporter/blob/master/shelly.yml.example#L1-L23
-
 ```yaml
+global:
+  scrape_interval: 1m
+  scrape_timeout: 10s
+
+log:
+  level: info
+  format: text
+  add_source: false
+
+server:
+  listen_addr: :2112
+  endpoint: /metrics
+
+configs:
+  - name: Plug1
+    address: 123.456.789.123:80
+    secure: false
+    username: admin
+    password: admin
+    interval: 1m
+    timeout: 10s
+```
 
 ## Metrics
 
