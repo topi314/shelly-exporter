@@ -38,9 +38,9 @@ services:
 The exporter is configured via a YAML file. The default path is `/etc/shelly-exporter/config.yml` but you can change it
 with the `--config` flag.
 
+https://github.com/TopiSenpai/shelly-exporter/blob/master/shelly.yml.example#L1-L23
+
 ```yaml
-# shelly.yml.example
-```
 
 ## Metrics
 
