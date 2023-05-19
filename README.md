@@ -64,8 +64,6 @@ The exporter uses the Shelly API to get the current power consumption of the dev
 
 Shelly Exporter is licensed under the [Apache License 2.0](/LICENSE).
 
----
-
 ## Contributing
 
 Contributions are always welcome! Just open a pull request or discussion and I will take a look at it.
