@@ -20,7 +20,7 @@ type GlobalConfig struct {
 
 type LogConfig struct {
 	Level     slog.Level `yaml:"level"`
-	Type      string     `yaml:"type"`
+	Format    string     `yaml:"format"`
 	AddSource bool       `yaml:"add_source"`
 }
 

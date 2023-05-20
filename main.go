@@ -64,7 +64,7 @@ func main() {
 		},
 		Log: LogConfig{
 			Level:     slog.LevelInfo,
-			Type:      "json",
+			Format:    "json",
 			AddSource: false,
 		},
 		Server: ServerConfig{
@@ -114,7 +114,7 @@ func setupLogger(cfg LogConfig) {
 		Level:     cfg.Level,
 	}
 	var handler slog.Handler
-	if cfg.Type == "json" {
+	if cfg.Format == "json" {
 		handler = slog.NewJSONHandler(os.Stdout, opts)
 	} else {
 		handler = slog.NewTextHandler(os.Stdout, opts)
