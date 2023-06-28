@@ -20,37 +20,37 @@ var (
 	power = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_power",
 		Help: "Current real AC power being drawn, in Watts",
-	}, []string{"serial", "name", "meter"})
+	}, []string{"name", "meter"})
 
 	powerValid = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_power_valid",
 		Help: "Whether power metering self-checks OK",
-	}, []string{"serial", "name", "meter"})
+	}, []string{"name", "meter"})
 
 	overpower = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_overpower",
 		Help: "Value in Watts, on which an overpower condition is detected",
-	}, []string{"serial", "name", "meter"})
+	}, []string{"name", "meter"})
 
 	totalPower = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "shellyplug_total_power",
 		Help: "Total energy consumed by the attached electrical appliance in Watt-minute",
-	}, []string{"serial", "name", "meter"})
+	}, []string{"name", "meter"})
 
 	temperature = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_temperature",
 		Help: "PlugS only internal device temperature in °C",
-	}, []string{"serial", "name"})
+	}, []string{"name"})
 
 	uptime = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_uptime",
 		Help: "Seconds elapsed since boot",
-	}, []string{"serial", "name"})
+	}, []string{"name"})
 
 	hasUpdate = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "shellyplug_has_update",
 		Help: "Whether an update is available",
-	}, []string{"serial", "name"})
+	}, []string{"name"})
 )
 
 func main() {
