@@ -66,15 +66,15 @@ configs:
 
 Shelly Exporter exposes the following metrics:
 
-| Metric                   | Description                                                               | Labels                    |
-|--------------------------|---------------------------------------------------------------------------|---------------------------|
-| `shellyplug_power`       | Current real AC power being drawn, in Watts                               | `serial`, `name`, `meter` |
-| `shellyplug_power_valid` | Whether power metering self-checks OK (0.0 = not OK, 1.0 = OK)            | `serial`, `name`, `meter` |
-| `shellyplug_overpower`   | Value in Watts, on which an overpower condition is detected               | `serial`, `name`, `meter` |
-| `shellyplug_total_power` | Total energy consumed by the attached electrical appliance in Watt-minute | `serial`, `name`, `meter` |
-| `shellyplug_temperature` | PlugS only internal device temperature in °C                              | `serial`, `name`          |
-| `shellyplug_uptime`      | Seconds elapsed since boot                                                | `serial`, `name`          |
-| `shellyplug_has_update`  | Whether an update is available (0.0 = no update, 1.0 = update)            | `serial`, `name`          |
+| Metric                   | Description                                                               | Labels          |
+|--------------------------|---------------------------------------------------------------------------|-----------------|
+| `shellyplug_power`       | Current real AC power being drawn, in Watts                               | `name`, `meter` |
+| `shellyplug_power_valid` | Whether power metering self-checks OK (0.0 = not OK, 1.0 = OK)            | `name`, `meter` |
+| `shellyplug_overpower`   | Value in Watts, on which an overpower condition is detected               | `name`, `meter` |
+| `shellyplug_total_power` | Total energy consumed by the attached electrical appliance in Watt-minute | `name`, `meter` |
+| `shellyplug_temperature` | PlugS only internal device temperature in °C                              | `name`          |
+| `shellyplug_uptime`      | Seconds elapsed since boot                                                | `name`          |
+| `shellyplug_has_update`  | Whether an update is available (0.0 = no update, 1.0 = update)            | `name`          |
 
 ## Details
 
