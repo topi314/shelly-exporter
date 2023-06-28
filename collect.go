@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -14,9 +13,7 @@ import (
 )
 
 func startCollector(ctx context.Context, cfg Config) {
-	var wg sync.WaitGroup
 	for i := range cfg.Configs {
-		wg.Add(1)
 		config := cfg.Configs[i]
 		if config.Interval == 0 {
 			config.Interval = cfg.Global.ScrapeInterval
@@ -25,7 +22,6 @@ func startCollector(ctx context.Context, cfg Config) {
 			config.Timeout = cfg.Global.ScrapeTimeout
 		}
 		go func() {
-			defer wg.Done()
 			logger := slog.With(
 				slog.String("name", config.Name),
 				slog.String("address", config.Address),
@@ -38,7 +34,6 @@ func startCollector(ctx context.Context, cfg Config) {
 			collect(ctx, logger, config)
 		}()
 	}
-	wg.Wait()
 }
 
 func collect(ctx context.Context, logger *slog.Logger, cfg PlugConfig) {
@@ -58,8 +53,7 @@ func collect(ctx context.Context, logger *slog.Logger, cfg PlugConfig) {
 			logger.DebugCtx(ctx, "Got plug status", slog.Any("status", status))
 
 			labels := prometheus.Labels{
-				"serial": strconv.Itoa(status.Serial),
-				"name":   cfg.Name,
+				"name": cfg.Name,
 			}
 			temperature.With(labels).Set(status.Temperature)
 			uptime.With(labels).Set(float64(status.Uptime))

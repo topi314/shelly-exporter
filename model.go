@@ -40,7 +40,6 @@ type PlugConfig struct {
 }
 
 type PlugStatus struct {
-	Serial          int     `json:"serial"`
 	Meters          []Meter `json:"meters"`
 	Temperature     float64 `json:"temperature"`
 	Overtemperature bool    `json:"overtemperature"`
